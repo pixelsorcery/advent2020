@@ -4,8 +4,6 @@ let path = Bundle.main.path(forResource: "input", ofType: "txt")!
 let text = try! String(contentsOfFile: path, encoding: String.Encoding.utf8)
 let numbers = text.components(separatedBy: "\n").map({Int($0)!})
 
-//let numSet: Set<Int64> = []
-
 var idx = 0
 
 for i in 26..<numbers.count {
