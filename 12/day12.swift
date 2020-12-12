@@ -32,8 +32,6 @@ for line in lines {
     }
 }
 
-print (curPos.x)
-print (curPos.y)
 print ("part 1: \(abs(curPos.x) + abs(curPos.y))")
 
 curPos = (0, 0)
