@@ -10,7 +10,7 @@ let S: (x:Int, y:Int) = (0, -1)
 let W: (x:Int, y:Int) = (-1, 0)
 
 let dirs = [E, S, W, N]
-
+let dirDic: [Substring:(x:Int, y:Int)] = ["E": E, "S": S, "W": W, "N": N]
 var curDir = 0
 var curPos: (x:Int, y:Int) = (0,0)
 
@@ -22,24 +22,13 @@ for line in lines {
         case "F":
             curPos.x += dirs[curDir].x * amt
             curPos.y += dirs[curDir].y * amt
-        case "E":
-            curPos.x += E.x * amt
-            curPos.y += E.y * amt
-        case "S":
-            curPos.x += S.x * amt
-            curPos.y += S.y * amt
-        case "W":
-            curPos.x += W.x * amt
-            curPos.y += W.y * amt
-        case "N":
-            curPos.x += N.x * amt
-            curPos.y += N.y * amt
         case "R":
             curDir = (curDir + (amt/90)) % 4
         case "L":
             curDir = ((curDir - (amt/90)) + 4) % 4
         default:
-            break
+            curPos.x += dirDic[dir]!.x * amt
+            curPos.y += dirDic[dir]!.y * amt
     }
 }
 
@@ -58,18 +47,6 @@ for line in lines {
         case "F":
             curPos.x += wayPt.x * amt
             curPos.y += wayPt.y * amt
-        case "E":
-            wayPt.x += E.x * amt
-            wayPt.y += E.y * amt
-        case "S":
-            wayPt.x += S.x * amt
-            wayPt.y += S.y * amt
-        case "W":
-            wayPt.x += W.x * amt
-            wayPt.y += W.y * amt
-        case "N":
-            wayPt.x += N.x * amt
-            wayPt.y += N.y * amt
         case "R":
             let rot = amt/90
             for _ in 0..<rot {
@@ -85,7 +62,8 @@ for line in lines {
                 wayPt.x = tmp
             }
         default:
-            break
+            wayPt.x += dirDic[dir]!.x * amt
+            wayPt.y += dirDic[dir]!.y * amt
     }
 }
 
