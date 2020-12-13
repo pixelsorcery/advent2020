@@ -28,13 +28,14 @@ for i in 0..<positionTimes.count {
     }
 }
 
-var idx: Int64 = 0
-let num2BruteForce = 4
+var idx: Int64 = 1
+var num2BruteForce = 1
+var incr: Int64 = 1
 
 while(true) {
     var found: Bool = true
 
-    for i in 0...num2BruteForce {
+    for i in 0..<num2BruteForce {
         let time = times[i]
         let valToAdd = indexes[time]!
         if (idx + Int64(valToAdd)) % Int64(time) != 0 {
@@ -43,25 +44,11 @@ while(true) {
         }
     }
     if found == true {
-        break
-    }
-    idx += 1
-}
-
-let incr: Int64 = times[0...num2BruteForce].reduce(1, {Int64($0) * Int64($1)})
-
-while(true) {
-    var found: Bool = true
-
-    for time in times{
-        let valToAdd = indexes[time]!
-        if (idx + Int64(valToAdd)) % Int64(time) != 0 {
-            found = false
+        num2BruteForce += 1
+        incr = times[0..<num2BruteForce-1].reduce(1, {Int64($0) * Int64($1)})
+        if num2BruteForce == times.count + 1 {
             break
         }
-    }
-    if found == true {
-        break
     }
     idx += incr
 }
