@@ -18,7 +18,6 @@ for time in times {
 
 print ("part 1: \(smallestDelta.0 * smallestDelta.1)")
 
-
 let positionTimes = lines[1].components(separatedBy:",")
 
 var indexes: [Int : Int] = [:]
@@ -49,14 +48,7 @@ while(true) {
     idx += 1
 }
 
-let incr: Int64 = {
-    var prod: Int64 = 1
-    for i in 0...num2BruteForce {
-        prod *= Int64(times[i])
-    }
-
-    return prod
-}()
+let incr: Int64 = times[0...num2BruteForce].reduce(1, {Int64($0) * Int64($1)})
 
 while(true) {
     var found: Bool = true
