@@ -14,7 +14,6 @@ let dirDic: [Substring:(x:Int, y:Int)] = ["E": E, "S": S, "W": W, "N": N]
 var curDir = 0
 var curPos: (x:Int, y:Int) = (0,0)
 
-
 for line in lines {
     let amt = Int(line.filter("1234567890".contains))!
     let dir = line.prefix(1)
