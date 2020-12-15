@@ -8,8 +8,8 @@ func appendTurn(_ nums: inout [Int], _ val: Int) {
         case 0, 1:
             nums.append(val)
         case 2:
-            nums.removeFirst(1)
-            nums.append(val)
+            nums[0] = nums[1]
+            nums[1] = val
         default:
             break
     }
