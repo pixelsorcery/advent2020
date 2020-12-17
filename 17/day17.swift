@@ -185,7 +185,7 @@ for _ in 0..<numSteps {
             }
         }
     }
-    rangeXY += 4
+    rangeXY += 2
     rangeZ += 2
     rangeW += 2
     startx -= 1
