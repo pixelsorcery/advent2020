@@ -5,7 +5,9 @@ let rawText = try! String(contentsOfFile: path, encoding: String.Encoding.utf8)
 let text = Array(rawText).filter("#.".contains)
 let width = rawText.components(separatedBy:"\n")[0].count
 
-let dim = 100
+let numSteps = 6
+
+let dim = width + numSteps * 2 + 3
 var grids: [[Int]] = [[Int](repeating: 0, count: dim*dim*dim), [Int](repeating: 0, count: dim*dim*dim)]
 
 var curGrid = 0
@@ -30,10 +32,10 @@ func checkNeighbors(_ xIn:Int, _ yIn:Int, _ zIn:Int) -> Int {
 }
 
 // initialize
-var startx = 46
-var starty = 46
+var startx = (dim / 2) - (width / 2)
+var starty = (dim / 2) - (width / 2)
 var range = width
-var startz = 50
+var startz = (dim / 2) - (width / 2)
 var textIdx = 0
 for y in starty..<starty+range {
     for x in startx..<startx+range {
@@ -53,7 +55,6 @@ startz -= 1
 var rangeXY = range + 2
 var rangeZ = range + 2
 
-let numSteps = 6
 var printString = ""
 for _ in 0..<numSteps {
     for z in startz..<startz+rangeZ{
@@ -133,11 +134,11 @@ func checkNeighborsXYZW(_ xIn:Int, _ yIn:Int, _ zIn:Int, _ wIn:Int) -> Int {
 }
 
 // initialize
-startx = 46
-starty = 46
+startx = (dim / 2) - (width / 2)
+starty = (dim / 2) - (width / 2)
 range = width
-startz = 50
-var startw = 50
+startz = (dim / 2) - (width / 2)
+var startw = (dim / 2) - (width / 2)
 textIdx = 0
 for y in starty..<starty+range {
     for x in startx..<startx+range {
