@@ -76,7 +76,7 @@ for line in lines {
 // generate regex
 func generateRegex(_ key: Int, _ depth: Int) -> String {
     
-    if depth > 20 {
+    if depth > 12 {
         return ""
     }
     
