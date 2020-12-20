@@ -18,6 +18,13 @@ struct Tile {
     var left = 0
     var right = 0
 
+    func printTile() {
+        for line in tileData {
+            print (line)
+        }
+        print ("\n")
+    }
+
     mutating func flipV() {
         for i in 0..<tileData[0].count/2 {
             let tmp = tileData[i]
@@ -81,7 +88,7 @@ enum Side: Int {
 }
 
 var tileDic:[Int:Tile] = [:]
-
+var tileIds:[Int] = []
 var tileId = 0
 var lineData:[String] = []
 for line in lines {
@@ -119,6 +126,7 @@ for line in lines {
                      left:0,
                      right:0)
         tileDic[tileId] = t
+        tileIds.append(tileId)
     }
 }
 
@@ -126,11 +134,12 @@ var part1 = 1
 
 // find 4 corner tiles
 var corners:[Int] = []
-
-for key in tileDic.keys {
+var threes = 0
+var fours = 0
+for key in tileIds {
     var sideMatch = 0
     for s1 in 0..<4 {
-        for key2 in tileDic.keys {
+        for key2 in tileIds {
             if key == key2 { continue }
             for s2 in 0..<4 {
                 let side1 = tileDic[key]!.sides[s1]
@@ -148,79 +157,94 @@ for key in tileDic.keys {
             }
         }     
     }
+
+    if sideMatch == 3 {
+        threes += 1
+    }
+
+    if sideMatch == 4 {
+        fours += 1
+    }
+
     if sideMatch == 2 {
         part1 *= key
         corners.append(key)
     }
 }
 
+assert (threes == 40)
+assert (fours == 100)
+
 print ("part 1: \(part1)") //18411576553343
 
-let sideLength = Int(sqrt(Double(tileDic.count)))
-
-let monster = """
-                  # 
-#    ##    ##    ###
- #  #  #  #  #  #   
-"""
-
-var tileOrder:[Int] = [corners[0]]
+let tilesDim = Int(sqrt(Double(tileDic.count)))
 
 var processed:Set<Int> = [corners[0]]
 var q:[Int] = [corners[0]]
-
 while q.count > 0 {
     let curTile = q.removeLast()
-    // find next tile in every direction
+    // get next matching tile
     for match in tileDic[curTile]!.matchingTiles {
         if processed.contains(match) { continue }
         var oriented = false
+        // find which directions match
         for i in 0..<4 {
             for side in 0..<4 {
-                var tile = tileDic[match]!
-                let cur = tileDic[curTile]!
                 var matched = false
-                if tile.sides[i] == cur.sides[side] {
-                    matched = true
-                } else if String(tile.sides[i].reversed()) == cur.sides[side] {
+                if tileDic[match]!.sides[i] == tileDic[curTile]!.sides[side] ||
+                   String(tileDic[match]!.sides[i].reversed()) == tileDic[curTile]!.sides[side] {
                     matched = true
                 }
 
                 if matched {
                     // look for orientation of tile that matches current tile's orientationn
                     for _ in 0...2 {
-                        tile.flipH()
+                        tileDic[match]!.flipH()
                         for _ in 0...2 {
-                            tile.flipV()
+                            tileDic[match]!.flipV()
                             for _ in 0...3 {
-                                tile.rotateTile()
+                                tileDic[match]!.rotateTile()
                                 switch side {
                                     case Side.top.rawValue:
-                                        if tile.sides[Side.bottom.rawValue] == cur.sides[Side.top.rawValue] {
+                                        if tileDic[match]!.sides[Side.bottom.rawValue] == tileDic[curTile]!.sides[Side.top.rawValue] {
+                                            tileDic[curTile]!.top = match
+                                            tileDic[match]!.bottom = curTile
                                             oriented = true
                                             break
                                         }
                                     case Side.bottom.rawValue:
-                                        if tile.sides[Side.top.rawValue] == cur.sides[Side.bottom.rawValue] {
+                                        if tileDic[match]!.sides[Side.top.rawValue] == tileDic[curTile]!.sides[Side.bottom.rawValue] {
+                                            tileDic[curTile]!.bottom = match
+                                            tileDic[match]!.top = curTile
                                             oriented = true
                                             break
                                         }
                                     case Side.right.rawValue:
-                                        if tile.sides[Side.left.rawValue] == cur.sides[Side.right.rawValue] {
+                                        if tileDic[match]!.sides[Side.left.rawValue] == tileDic[curTile]!.sides[Side.right.rawValue] {
+                                            tileDic[curTile]!.right = match
+                                            tileDic[match]!.left = curTile
                                             oriented = true
                                             break
                                         }
                                     case Side.left.rawValue:
-                                        if tile.sides[Side.right.rawValue] == cur.sides[Side.left.rawValue] {
+                                        if tileDic[match]!.sides[Side.right.rawValue] == tileDic[curTile]!.sides[Side.left.rawValue] {
+                                            tileDic[curTile]!.left = match
+                                            tileDic[match]!.right = curTile
                                             oriented = true
                                             break
                                         }
                                     default:
                                         assert(false)
                                         break
+
                                 } // switch
+                                if oriented == true { break }
                             }
-                            if oriented == true { break }
+                            if oriented == true { 
+                                //print ("match:")
+                                //tileDic[curTile]!.printTile()
+                                //tileDic[match]!.printTile()
+                                break }
                         }
                         if oriented == true { break }
                     }
@@ -236,4 +260,198 @@ while q.count > 0 {
     }
 }
 
+// find neighbors
+processed = [corners[0]]
+q = [corners[0]]
+while q.count > 0 {
+    let curTile = q.removeLast()
+    // find next tile in every direction
+    for match in tileDic[curTile]!.matchingTiles {
+        if processed.contains(match) { continue }
+        for i in 0..<4 {
+            for side in 0..<4 {
+                if tileDic[match]!.sides[i] == tileDic[curTile]!.sides[side] {
+                    switch side {
+                        case Side.top.rawValue:
+                            if tileDic[match]!.sides[Side.bottom.rawValue] == tileDic[curTile]!.sides[Side.top.rawValue] {
+                                tileDic[curTile]!.top = match
+                                tileDic[match]!.bottom = curTile
+                                break
+                            }
+                        case Side.bottom.rawValue:
+                            if tileDic[match]!.sides[Side.top.rawValue] == tileDic[curTile]!.sides[Side.bottom.rawValue] {
+                                tileDic[curTile]!.bottom = match
+                                tileDic[match]!.top = curTile
+                                break
+                            }
+                        case Side.right.rawValue:
+                            if tileDic[match]!.sides[Side.left.rawValue] == tileDic[curTile]!.sides[Side.right.rawValue] {
+                                tileDic[curTile]!.right = match
+                                tileDic[match]!.left = curTile
+                                break
+                            }
+                        case Side.left.rawValue:
+                            if tileDic[match]!.sides[Side.right.rawValue] == tileDic[curTile]!.sides[Side.left.rawValue] {
+                                tileDic[curTile]!.left = match
+                                tileDic[match]!.right = curTile
+                                break
+                            }
+                        default:
+                            assert(false)
+                            break
+                    } // switch
+                }
+            }
+        }
+        q.append(match)
+    }
+    processed.insert(curTile)
+}
+
+
 // find and start at top left corner
+var cur = corners[0]
+for key in corners {
+    if tileDic[key]!.top == 0 && tileDic[key]!.left == 0 {
+        cur = key
+    }
+}
+
+var leftTile = cur
+
+var image:[String] = Array(repeating: "", count: (tileDic[cur]!.tileDataNoBorder.count) * tilesDim)
+
+for y in 0..<tilesDim {
+    for _ in 0..<tilesDim {
+        for l in 0..<tileDic[cur]!.tileDataNoBorder.count {
+            let line = y * tileDic[cur]!.tileDataNoBorder.count + l
+            image[line] += tileDic[cur]!.tileDataNoBorder[l]
+        }
+        cur = tileDic[cur]!.right
+    }
+    leftTile = tileDic[leftTile]!.bottom
+    cur = leftTile
+}
+
+// find dragon
+func printImage() {
+    for line in image {
+        print (line)
+    }
+    print ("\n")
+}
+
+func flipImageV() {
+    for i in 0..<image[0].count/2 {
+        let tmp = image[i]
+        image[i] = image[image.count - i - 1]
+        image[image.count - i - 1] = tmp
+    }
+}
+
+func flipImageH() {
+    for i in 0..<image[0].count {
+        image[i] = String(image[i].reversed())
+    }    
+}
+
+func rotateImage() {
+    var newTileData:[String] = Array(repeating: "", count: image[0].count)
+    for i in 0..<image[0].count {
+        for j in 0..<image[0].count {
+            newTileData[j] += String(image[image[0].count - i - 1].prefix(j+1).suffix(1))
+        }
+    }
+    image = newTileData
+}
+
+var monster:[String] = []
+monster.append("                  # ")
+monster.append("#    ##    ##    ###")
+monster.append(" #  #  #  #  #  #   ")
+
+extension StringProtocol {
+    subscript(offset: Int) -> Character {
+        self[index(startIndex, offsetBy: offset)]
+    }
+}
+
+func findDragon() -> Bool {
+    var found = false
+    for y in 0..<image.count - monster.count {
+        for x in 0..<image[0].count - monster[0].count {
+            var match = true
+            for my in 0..<monster.count {
+                for mx in 0..<monster[0].count {
+                    if monster[my][mx] == "#" && image[y+my][x+mx] == "." {
+                        match = false
+                    }
+                    if match == false { break }
+                }
+                if match == false { break }
+            }
+            if match == true {
+                found = true
+                break
+            }
+        }
+        if found == true { break }
+    }
+    return found
+}
+
+var matchFound = false
+for _ in 0...2 {
+    for _ in 0...2 {
+        for _ in 0...3 {
+
+            matchFound = findDragon()
+
+            if matchFound { break }
+            rotateImage()
+        }
+        if matchFound { break }
+        flipImageH()
+    }
+    if matchFound { break }
+    flipImageV()
+}
+
+assert(matchFound)
+
+func replaceDragons() -> Int {
+    var monsters = 0
+    for y in 0..<image.count - monster.count {
+        for x in 0..<image[0].count - monster[0].count {
+            var match = true
+            for my in 0..<monster.count {
+                for mx in 0..<monster[0].count {
+                    if monster[my][mx] == "#" && image[y+my][x+mx] == "." {
+                        match = false
+                    }
+                    if match == false { break }
+                }
+                
+                if match == false {
+                    break
+                }
+            }
+
+            if match == true {
+                monsters += 1
+            }
+        }
+    }
+    return monsters
+}
+
+var numDragons = replaceDragons()
+
+var waves = 0
+for line in image {
+    waves += line.filter{$0 == "#"}.count
+}
+
+waves -= numDragons * 15
+
+print ("part 2: \(waves)")
