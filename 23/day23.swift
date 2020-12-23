@@ -6,7 +6,7 @@ var arrayInput = Array(input).map{Int(String($0))!}
 
 var memo:Set<[Int]> = []
 
-// slow array based solution for part 1
+// slow array shuffling solution for part 1
 func run(_ input:[Int], _ rounds:Int) -> [Int] {
     var idx = 0
     var vals = input
@@ -87,9 +87,9 @@ for _ in 0..<result.count - 1 {
 print ("part 1: \(part1)")
 
 
-// fast solution for part 2
+// fast array-as-map solution for part 2
 func run2(_ input:[Int], _ rounds:Int, _ nodeCount: Int) -> Int {
-    var nodeMap:[Int:Int] = [:]
+    var nodeMap:[Int] = Array(0...1000000)
     for i in 0..<input.count-1 {
         nodeMap[input[i]] = input[i+1]
     }
@@ -106,9 +106,9 @@ func run2(_ input:[Int], _ rounds:Int, _ nodeCount: Int) -> Int {
     var cur = input.first!
 
     for _ in 0..<rounds {
-        let one = nodeMap[cur]!
-        let two = nodeMap[one]!
-        let three = nodeMap[two]!
+        let one = nodeMap[cur]
+        let two = nodeMap[one]
+        let three = nodeMap[two]
 
         var target = cur - 1
         if target <= 0 { target = nodeCount }
@@ -118,16 +118,16 @@ func run2(_ input:[Int], _ rounds:Int, _ nodeCount: Int) -> Int {
             if target <= 0 { target = nodeCount }
         }
 
-        nodeMap[cur] = nodeMap[three]!
-        cur = nodeMap[three]!
+        nodeMap[cur] = nodeMap[three]
+        cur = nodeMap[three]
 
-        let oldNext = nodeMap[target]!
+        let oldNext = nodeMap[target]
         nodeMap[target] = one
         nodeMap[three] = oldNext
     }
     
-    let first = nodeMap[1]!
-    let second = nodeMap[first]!
+    let first = nodeMap[1]
+    let second = nodeMap[first]
 
     return first * second
 }
